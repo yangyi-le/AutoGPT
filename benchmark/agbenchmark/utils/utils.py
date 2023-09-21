@@ -1,4 +1,5 @@
 # radio charts, logs, helper functions for tests, anything else relevant.
+import json
 import os
 import re
 from pathlib import Path
@@ -137,8 +138,8 @@ def find_absolute_benchmark_path() -> Path:
 
     # Find the position of "Auto-GPT-Benchmarks" in the path
     benchmark_path_index = (
-        current_path.parts.index("Auto-GPT-Benchmarks")
-        if "Auto-GPT-Benchmarks" in current_path.parts
+        current_path.parts.index("benchmark")
+        if "Auto-GPT" in current_path.parts
         else None
     )
 
@@ -151,3 +152,22 @@ def find_absolute_benchmark_path() -> Path:
         raise ValueError(
             "The directory 'Auto-GPT-Benchmarks' is not found in the current path."
         )
+
+
+def write_pretty_json(data, json_file):
+    sorted_data = deep_sort(data)
+    json_graph = json.dumps(sorted_data, indent=4)
+    with open(json_file, "w") as f:
+        f.write(json_graph)
+        f.write("\n")
+
+
+def deep_sort(obj):
+    """
+    Recursively sort the keys in JSON object
+    """
+    if isinstance(obj, dict):
+        return {k: deep_sort(v) for k, v in sorted(obj.items())}
+    if isinstance(obj, list):
+        return [deep_sort(elem) for elem in obj]
+    return obj

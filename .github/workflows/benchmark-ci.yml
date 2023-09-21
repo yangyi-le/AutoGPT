@@ -130,6 +130,15 @@ jobs:
           sh run_benchmark &
           cd ../../benchmark
           poetry install
-          poetry run pytest tests
+          poetry run pytest -vv -s tests
+          
+          CHANGED=$(git diff --name-only | grep -E '(agbenchmark/challenges)|(../frontend/assets)|(frontend/public/graph.json)') || echo "No diffs"
+          if [ ! -z "$CHANGED" ]; then
+            echo "There are unstaged changes in the challenges folder, please run agbenchmark and commit those changes since they are needed."
+            echo "$CHANGED"
+            exit 1
+          else
+            echo "No unstaged changes in the challenges folder."
+          fi
         env:
           OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
